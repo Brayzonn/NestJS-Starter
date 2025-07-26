@@ -20,6 +20,9 @@ export class User {
   @Column()
   lastName: string;
 
+  @Column({ default: 0 })
+  visits: number;
+
   @CreateDateColumn()
   createdAt: Date;
 
