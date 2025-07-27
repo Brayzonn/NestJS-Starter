@@ -1,11 +1,10 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './modules/users/users.module';
-import { DefaultRateLimitMiddleware } from './common/middleware/rate-limit.middleware';
+import { LoggerMiddleware } from './common/middleware/activity-logger.middleware';
 
 @Module({
   imports: [
@@ -33,4 +32,8 @@ import { DefaultRateLimitMiddleware } from './common/middleware/rate-limit.middl
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggerMiddleware).forRoutes('*');
+  }
+}
