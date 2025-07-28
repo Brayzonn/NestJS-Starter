@@ -16,13 +16,4 @@ export class UsersController {
   async findAll() {
     return await this.usersService.findAll();
   }
-
-  @Patch(':id/increment-visits')
-  async incrementVisits(@Param('id') id: number) {
-    const updatedUser = await this.usersService.incrementVisits(+id);
-    return {
-      message: 'Visits incremented successfully',
-      user: updatedUser,
-    };
-  }
 }

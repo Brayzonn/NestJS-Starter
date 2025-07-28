@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
 import { createCorsConfig } from './config/cors.config';
@@ -17,6 +17,11 @@ async function bootstrap() {
   setupHelmetAndCompression(app);
   app.enableCors(createCorsConfig(configService));
   app.useGlobalPipes(new ValidationPipe(validationPipeOptions));
+  app.setGlobalPrefix('api');
+  app.enableVersioning({
+    type: VersioningType.URI,
+    defaultVersion: '1',
+  });
   await app.listen(parseInt(configService.get('PORT', '3000')));
 }
 bootstrap();
