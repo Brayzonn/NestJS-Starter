@@ -15,10 +15,13 @@ export class User {
   email: string;
 
   @Column()
-  firstName: string;
+  username: string;
 
   @Column()
-  lastName: string;
+  password: string;
+
+  @Column()
+  streamingService: string;
 
   @Column({ default: 0 })
   visits: number;
