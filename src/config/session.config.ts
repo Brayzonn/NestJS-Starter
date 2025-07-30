@@ -30,7 +30,7 @@ export function setupSessionAndCookies(
     cookie: {
       secure: nodeEnv === 'production',
       httpOnly: true,
-      maxAge: 1000 * 60 * 60 * 24,
+      maxAge: 1000 * 60 * 60 * 2,
       sameSite: 'strict',
     },
     name: 'serverSessionID',

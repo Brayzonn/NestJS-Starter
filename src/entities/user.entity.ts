@@ -4,31 +4,37 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  Index,
 } from 'typeorm';
 
 @Entity('users')
 export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
 
-  @Column({ unique: true })
-  email: string;
+  @Index({ unique: true })
+  @Column({ length: 320 })
+  email!: string;
 
-  @Column()
-  username: string;
+  @Index({ unique: true })
+  @Column({ length: 50 })
+  username!: string;
 
-  @Column()
-  password: string;
+  @Column({ length: 72 })
+  password!: string;
 
-  @Column()
-  streamingService: string;
+  @Column({
+    type: 'enum',
+    enum: ['spotify', 'apple_music', 'youtube_music'] as const,
+  })
+  streamingService!: 'spotify' | 'apple_music' | 'youtube_music';
 
-  @Column({ default: 0 })
-  visits: number;
+  @Column({ type: 'int', default: 0 })
+  visits!: number;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt!: Date;
 }

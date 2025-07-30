@@ -1,10 +1,13 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthModule } from './auth/auth.module';
+import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UsersModule } from './modules/users/users.module';
 import { LoggerMiddleware } from './common/middleware/activity-logger.middleware';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -26,11 +29,17 @@ import { LoggerMiddleware } from './common/middleware/activity-logger.middleware
       }),
       inject: [ConfigService],
     }),
-
-    UsersModule,
+    AuthModule,
+    HealthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
