@@ -6,39 +6,59 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import { RateLimiterRedis } from 'rate-limiter-flexible';
+import { RateLimiterRedis, RateLimiterMemory } from 'rate-limiter-flexible';
 import Redis from 'ioredis';
 
-const redisClient = new Redis({
-  host: 'localhost',
-  port: 6379,
-  enableOfflineQueue: false,
-});
+const redisClient =
+  process.env.NODE_ENV === 'production'
+    ? new Redis({
+        host: process.env.REDIS_HOST || 'localhost',
+        port: parseInt(process.env.REDIS_PORT || '6379'),
+        enableOfflineQueue: false,
+      })
+    : null;
+
+function createRateLimiter(config: {
+  keyPrefix: string;
+  points: number;
+  duration: number;
+}) {
+  if (process.env.NODE_ENV === 'production' && redisClient) {
+    return new RateLimiterRedis({
+      storeClient: redisClient,
+      keyPrefix: config.keyPrefix,
+      points: config.points,
+      duration: config.duration,
+    });
+  } else {
+    return new RateLimiterMemory({
+      keyPrefix: config.keyPrefix,
+      points: config.points,
+      duration: config.duration,
+    });
+  }
+}
 
 const rateLimiters = {
-  default: new RateLimiterRedis({
-    storeClient: redisClient,
+  default: createRateLimiter({
     keyPrefix: 'default',
     points: 20,
     duration: 60,
   }),
 
-  auth: new RateLimiterRedis({
-    storeClient: redisClient,
+  auth: createRateLimiter({
     keyPrefix: 'auth',
-    points: 5,
-    duration: 300,
-  }),
-
-  upload: new RateLimiterRedis({
-    storeClient: redisClient,
-    keyPrefix: 'upload',
-    points: 2,
+    points: 10,
     duration: 60,
   }),
 
-  strict: new RateLimiterRedis({
-    storeClient: redisClient,
+  upload: createRateLimiter({
+    keyPrefix: 'upload',
+    points: 10,
+    duration: 60,
+  }),
+
+  strict: createRateLimiter({
     keyPrefix: 'strict',
     points: 1,
     duration: 10,
@@ -60,10 +80,9 @@ export function createRateLimitMiddleware(
         await rateLimiters[type].consume(req.ip);
         next();
       } catch (rejRes) {
-        throw new HttpException(
-          customMessage || `Too Many Requests (${type})`,
-          HttpStatus.TOO_MANY_REQUESTS,
-        );
+        const message = customMessage || `Too Many Requests (${type})`;
+        console.log(`Rate limit exceeded for IP: ${req.ip}, type: ${type}`);
+        throw new HttpException(message, HttpStatus.TOO_MANY_REQUESTS);
       }
     }
   }
@@ -81,6 +100,7 @@ export class DefaultRateLimitMiddleware implements NestMiddleware {
       await rateLimiters.default.consume(req.ip);
       next();
     } catch (rejRes) {
+      console.log(`Rate limit exceeded for IP: ${req.ip}`);
       throw new HttpException(
         'Too Many Requests',
         HttpStatus.TOO_MANY_REQUESTS,
@@ -88,3 +108,9 @@ export class DefaultRateLimitMiddleware implements NestMiddleware {
     }
   }
 }
+
+export const cleanupRateLimit = () => {
+  if (redisClient) {
+    redisClient.disconnect();
+  }
+};

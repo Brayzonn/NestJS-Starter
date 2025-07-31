@@ -7,6 +7,17 @@ import {
   Index,
 } from 'typeorm';
 
+export enum UserRole {
+  ADMIN = 'admin',
+  USER = 'user',
+}
+
+export enum streamService {
+  SPOTIFY = 'spotify',
+  APPLE_MUSIC = 'apple_music',
+  YOUTUBE_MUSIC = 'youtube_music',
+}
+
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn('uuid')
@@ -25,9 +36,17 @@ export class User {
 
   @Column({
     type: 'enum',
-    enum: ['spotify', 'apple_music', 'youtube_music'] as const,
+    enum: streamService,
+    default: streamService.SPOTIFY,
   })
-  streamingService!: 'spotify' | 'apple_music' | 'youtube_music';
+  streamingService!: streamService;
+
+  @Column({
+    type: 'enum',
+    enum: UserRole,
+    default: UserRole.USER,
+  })
+  role!: UserRole;
 
   @Column({ type: 'int', default: 0 })
   visits!: number;

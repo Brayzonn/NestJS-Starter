@@ -53,6 +53,7 @@ export class AuthService {
         id: user.id,
         email: user.email,
         username: user.username,
+        role: user.role,
       },
     };
   }
@@ -109,6 +110,7 @@ export class AuthService {
         id: newUser.id,
         email: newUser.email,
         username: newUser.username,
+        role: newUser.role,
       },
     };
   }

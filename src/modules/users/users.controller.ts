@@ -1,19 +1,27 @@
-// import { Controller, Get, Post, Body, Param, Patch } from '@nestjs/common';
-// import { UsersService } from './users.service';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Patch,
+  UseGuards,
+  Res,
+  Delete,
+} from '@nestjs/common';
+import { UserService } from './users.service';
+import { RolesGuard } from 'src/common/guards/roles.guard';
+import { Role } from 'src/common/enums/role.enum';
+import { Roles } from 'src/common/decorators/roles.decorator';
 
-// @Controller('users')
-// export class UsersController {
-//   constructor(private readonly usersService: UsersService) {}
+@Controller('users')
+@UseGuards(RolesGuard)
+export class UsersController {
+  constructor(private readonly UserService: UserService) {}
 
-//   @Post()
-//   async create(
-//     @Body() userData: { email: string; firstName: string; lastName: string },
-//   ) {
-//     return await this.usersService.create(userData);
-//   }
-
-//   @Get()
-//   async findAll() {
-//     return await this.usersService.findAll();
-//   }
-// }
+  @Get()
+  @Roles(Role.ADMIN)
+  async findAll() {
+    return await this.UserService.findAll();
+  }
+}

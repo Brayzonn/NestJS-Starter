@@ -1,3 +1,6 @@
+import { streamService } from 'src/entities/user.entity';
+import { UserRole } from 'src/entities/user.entity';
+
 export interface LoginDto {
   email: string;
   password: string;
@@ -7,7 +10,7 @@ export interface RegisterDto {
   email: string;
   password: string;
   username: string;
-  streamingService: 'spotify' | 'apple_music' | 'youtube_music';
+  streamingService: streamService;
 }
 
 export interface AuthDto {
@@ -17,6 +20,7 @@ export interface AuthDto {
     id: string;
     email: string;
     username: string;
+    role: UserRole;
   };
 }
 
@@ -32,5 +36,6 @@ export interface AuthResponse {
     id: string;
     email: string;
     username: string;
+    role: UserRole;
   };
 }
