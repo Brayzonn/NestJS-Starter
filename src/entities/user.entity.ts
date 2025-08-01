@@ -34,6 +34,9 @@ export class User {
   @Column({ length: 72 })
   password!: string;
 
+  @Column({ default: false })
+  emailValidated!: boolean;
+
   @Column({
     type: 'enum',
     enum: streamService,

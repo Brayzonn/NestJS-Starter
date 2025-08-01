@@ -9,6 +9,7 @@ import { AppService } from './app.service';
 import { UserModule } from './modules/users/users.module';
 import { LoggerMiddleware } from './common/middleware/activity-logger.middleware';
 import { HealthModule } from './health/health.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { HealthModule } from './health/health.module';
     }),
     UserModule,
     AuthModule,
+    ScheduleModule.forRoot(),
     HealthModule,
   ],
   controllers: [AppController],
