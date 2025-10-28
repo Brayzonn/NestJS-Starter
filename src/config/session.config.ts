@@ -1,11 +1,9 @@
 import { INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as session from 'express-session';
-import * as cookieParser from 'cookie-parser';
-
-//redis for prod
-// import { createClient } from 'redis';
-// import RedisStore from 'connect-redis';
+import session from 'express-session';
+import cookieParser from 'cookie-parser';
+import { createClient } from 'redis';
+import RedisStore from 'connect-redis';
 
 export function setupSessionAndCookies(
   app: INestApplication,
@@ -31,27 +29,35 @@ export function setupSessionAndCookies(
       secure: nodeEnv === 'production',
       httpOnly: true,
       maxAge: 1000 * 60 * 60 * 2,
-      sameSite: 'strict',
+      sameSite: nodeEnv === 'production' ? 'none' : 'lax',
     },
     name: 'serverSessionID',
   };
 
-  // Production: Use Redis store
-  //   if (nodeEnv === 'production') {
-  //     const redisClient = createClient({
-  //       socket: {
-  //         host: configService.get<string>('REDIS_HOST', 'localhost'),
-  //         port: configService.get<number>('REDIS_PORT', 6379),
-  //       }
-  //     });
+  const redisClient = createClient({
+    socket: {
+      host: configService.get<string>('REDIS_HOST', 'localhost'),
+      port: configService.get<number>('REDIS_PORT', 6379),
+    },
+  });
 
-  //     redisClient.connect().catch(console.error);
+  redisClient.on('error', (err) => {
+    console.error('Redis connection error:', err);
+  });
 
-  //     sessionConfig.store = new RedisStore({
-  //       client: redisClient,
-  //       prefix: 'myapp:',
-  //     });
-  //   }
+  redisClient.on('connect', () => {
+    console.log('Redis connected for session storage');
+  });
+
+  redisClient.connect().catch((err) => {
+    console.error('Failed to connect to Redis:', err);
+  });
+
+  sessionConfig.store = new RedisStore({
+    client: redisClient,
+    prefix: 'musicstats:sess:',
+    ttl: 7200,
+  });
 
   app.use(session(sessionConfig));
 }

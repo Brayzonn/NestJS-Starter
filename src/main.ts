@@ -28,5 +28,7 @@ async function bootstrap() {
     defaultVersion: '1',
   });
   await app.listen(parseInt(configService.get('PORT', '3000')));
+  console.log(`Application is running on: ${await app.getUrl()}`);
+  console.log(`Swagger docs available at: ${await app.getUrl()}/api/docs`);
 }
 bootstrap();

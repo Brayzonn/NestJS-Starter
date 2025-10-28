@@ -1,6 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import helmet from 'helmet';
-import * as compression from 'compression';
+import compression from 'compression';
 
 export function setupHelmetAndCompression(app: INestApplication): void {
   app.use(

@@ -52,8 +52,8 @@ const rateLimiters = {
     duration: 60,
   }),
 
-  upload: createRateLimiter({
-    keyPrefix: 'upload',
+  user: createRateLimiter({
+    keyPrefix: 'user',
     points: 10,
     duration: 60,
   }),
