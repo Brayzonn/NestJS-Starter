@@ -2,17 +2,19 @@ import { Controller, Get } from '@nestjs/common';
 import {
   HealthCheckService,
   HealthCheck,
-  TypeOrmHealthIndicator,
   MemoryHealthIndicator,
   DiskHealthIndicator,
+  PrismaHealthIndicator,
 } from '@nestjs/terminus';
 import { Public } from '../auth/decorators/public.decorator';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Controller('health')
 export class HealthController {
   constructor(
     private health: HealthCheckService,
-    private db: TypeOrmHealthIndicator,
+    private prismaHealth: PrismaHealthIndicator,
+    private prismaService: PrismaService,
     private memory: MemoryHealthIndicator,
     private disk: DiskHealthIndicator,
   ) {}
@@ -22,7 +24,7 @@ export class HealthController {
   @HealthCheck()
   check() {
     return this.health.check([
-      () => this.db.pingCheck('database'),
+      () => this.prismaHealth.pingCheck('database', this.prismaService as any),
       () => this.memory.checkHeap('memory_heap', 512 * 1024 * 1024),
       () =>
         this.disk.checkStorage('storage', {
