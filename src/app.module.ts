@@ -1,12 +1,12 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { PrismaModule } from './prisma/prisma.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { PrismaModule } from '@/prisma/prisma.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { LoggerMiddleware } from './common/middleware/activity-logger.middleware';
-import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
-import { AppController } from './app.controller';
-import { HealthModule } from './health/health.module';
-import { ScheduleModule } from '@nestjs/schedule';
+import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
+import { AppController } from '@/app.controller';
+import { HealthModule } from '@/health/health.module';
 
 @Module({
   imports: [
