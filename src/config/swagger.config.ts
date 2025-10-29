@@ -1,26 +1,26 @@
 import { DocumentBuilder } from '@nestjs/swagger';
 
 export const swaggerConfig = new DocumentBuilder()
-  .setTitle('Music Analytics API')
+  .setTitle('NestJS Starter API')
   .setDescription(
-    'A comprehensive music analytics API for Spotify users. Track listening habits, generate reports, and discover music patterns.',
+    'A robust NestJS starter template for scalable backend projects with built-in authentication, configuration management, and modular architecture.',
   )
   .setVersion('1.0.0')
   .setContact(
-    'API Support',
-    'https://github.com/yourusername/music-analytics-api',
-    'support@musicanalytics.com',
+    'Developer Support',
+    'https://github.com/yourusername/nestjs-starter',
+    'support@yourdomain.com',
   )
   .setLicense('MIT', 'https://opensource.org/licenses/MIT')
-  .addServer('http://localhost:3000', 'Development server')
-  .addServer('https://api.musicanalytics.com', 'Production server')
+  .addServer('http://localhost:3000', 'Development Server')
+  .addServer('https://api.yourdomain.com', 'Production Server')
   .addBearerAuth(
     {
       type: 'http',
       scheme: 'bearer',
       bearerFormat: 'JWT',
       name: 'JWT',
-      description: 'Enter JWT token',
+      description: 'Enter JWT token for authentication',
       in: 'header',
     },
     'JWT-auth',
@@ -30,16 +30,15 @@ export const swaggerConfig = new DocumentBuilder()
       type: 'oauth2',
       flows: {
         authorizationCode: {
-          authorizationUrl: 'https://accounts.spotify.com/authorize',
-          tokenUrl: 'https://accounts.spotify.com/api/token',
+          authorizationUrl: 'https://example.com/oauth/authorize',
+          tokenUrl: 'https://example.com/oauth/token',
           scopes: {
-            'user-read-recently-played': 'Read recently played tracks',
-            'user-read-playback-state': 'Read playback state',
-            'user-read-currently-playing': 'Read currently playing track',
+            'read:data': 'Read access to data',
+            'write:data': 'Write access to data',
           },
         },
       },
     },
-    'spotify-oauth',
+    'OAuth2',
   )
   .build();
