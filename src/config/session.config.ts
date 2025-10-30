@@ -4,10 +4,12 @@ import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import { createClient } from 'redis';
 import RedisStore from 'connect-redis';
+import { RedisService } from '@/redis/redis.service';
 
 export function setupSessionAndCookies(
   app: INestApplication,
   configService: ConfigService,
+  redisService: RedisService,
 ): void {
   const cookieSecret = configService.get<string>(
     'COOKIE_SECRET',
@@ -34,28 +36,9 @@ export function setupSessionAndCookies(
     name: 'serverSessionID',
   };
 
-  const redisClient = createClient({
-    socket: {
-      host: configService.get<string>('REDIS_HOST', 'localhost'),
-      port: configService.get<number>('REDIS_PORT', 6379),
-    },
-  });
-
-  redisClient.on('error', (err) => {
-    console.error('Redis connection error:', err);
-  });
-
-  redisClient.on('connect', () => {
-    console.log('Redis connected for session storage');
-  });
-
-  redisClient.connect().catch((err) => {
-    console.error('Failed to connect to Redis:', err);
-  });
-
   sessionConfig.store = new RedisStore({
-    client: redisClient,
-    prefix: 'musicstats:sess:',
+    client: redisService.getClient(),
+    prefix: 'testapp:sess:',
     ttl: 7200,
   });
 
