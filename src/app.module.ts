@@ -7,12 +7,14 @@ import { LoggerMiddleware } from './common/middleware/activity-logger.middleware
 import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
 import { AppController } from '@/app.controller';
 import { HealthModule } from '@/health/health.module';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    RedisModule,
     PrismaModule,
     ScheduleModule.forRoot(),
     HealthModule,
