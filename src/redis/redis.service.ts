@@ -15,10 +15,25 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   constructor(private configService: ConfigService) {}
 
   async onModuleInit() {
+    const nodeEnv = this.configService.get<string>('NODE_ENV', 'development');
+    const password = this.configService.get<string>('REDIS_PASSWORD');
+
+    if (nodeEnv === 'production' && !password) {
+      throw new Error(
+        'REDIS_PASSWORD is required in production for security. Please set it in your .env file.',
+      );
+    }
+
+    if (nodeEnv === 'development' && !password) {
+      this.logger.warn(
+        'REDIS_PASSWORD is not set. This is okay for development but required for production.',
+      );
+    }
+
     this.client = new Redis({
       host: this.configService.get('REDIS_HOST', 'localhost'),
       port: this.configService.get('REDIS_PORT', 6379),
-      password: this.configService.get('REDIS_PASSWORD'),
+      password: password,
       db: this.configService.get('REDIS_DB', 0),
       retryStrategy: (times) => {
         const delay = Math.min(times * 50, 2000);
@@ -27,7 +42,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     });
 
     this.client.on('connect', () => {
-      this.logger.log('Redis connected');
+      this.logger.log('Redis connected successfully');
     });
 
     this.client.on('error', (err) => {
