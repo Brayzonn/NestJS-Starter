@@ -7,7 +7,8 @@ import { LoggerMiddleware } from './common/middleware/activity-logger.middleware
 import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
 import { AppController } from '@/app.controller';
 import { HealthModule } from '@/health/health.module';
-import { RedisModule } from './redis/redis.module';
+import { RedisModule } from '@/redis/redis.module';
+import { CommonModule } from '@/common/common.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { RedisModule } from './redis/redis.module';
       isGlobal: true,
     }),
     RedisModule,
+    CommonModule,
     PrismaModule,
     ScheduleModule.forRoot(),
     HealthModule,
