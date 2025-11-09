@@ -1,65 +1,95 @@
 import {
   Controller,
-  Get,
   Post,
-  Put,
-  Delete,
   Body,
-  Param,
-  Query,
-  UseGuards,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
-
-import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
-import { RolesGuard } from '@/auth/guards/roles.guard';
-import { Roles } from '@/auth/decorators/roles.decorator';
-import { Public } from '@/auth/decorators/public.decorator';
 import {
   ApiTags,
   ApiOperation,
   ApiResponse,
-  ApiBearerAuth,
-  ApiUnauthorizedResponse,
-  ApiForbiddenResponse,
+  ApiBadRequestResponse,
+  ApiConflictResponse,
   ApiInternalServerErrorResponse,
 } from '@nestjs/swagger';
-import { Role } from '@/common/enums/role.enum';
-import { AuthService } from './auth.service';
+import { AuthService } from '@/auth/auth.service';
+import { RegisterDto } from '@/auth/dto/register.dto';
+import { LoginDto } from '@/auth/dto/login.dto';
+import { AuthResponseDto } from '@/auth/dto/auth-response.dto';
+import { Public } from '@/auth/decorators/public.decorator';
 
 @ApiTags('auth')
 @Controller('auth')
-@UseGuards(JwtAuthGuard, RolesGuard)
-@ApiBearerAuth()
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Get('')
-  @Roles(Role.USER)
-  @HttpCode(HttpStatus.OK)
+  @Public()
+  @Post('register')
+  @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
-    summary: '',
-    description: '',
+    summary: 'Register a new user',
+    description: 'Create a new user account with email and password',
   })
   @ApiResponse({
-    status: HttpStatus.OK,
-    description: '',
-    type: '',
+    status: HttpStatus.CREATED,
+    description: 'User successfully registered',
+    type: AuthResponseDto,
   })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: '',
+  @ApiBadRequestResponse({
+    description: 'Invalid input data',
     schema: {
-      example: null,
+      example: {
+        statusCode: 400,
+        message: ['email must be a valid email', 'password is too weak'],
+        error: 'Bad Request',
+      },
     },
   })
-  @ApiUnauthorizedResponse({ description: '' })
-  @ApiForbiddenResponse({
-    description: '',
+  @ApiConflictResponse({
+    description: 'Email already exists',
+    schema: {
+      example: {
+        statusCode: 409,
+        message: 'User with this email already exists',
+        error: 'Conflict',
+      },
+    },
   })
   @ApiInternalServerErrorResponse({
-    description: '',
+    description: 'Internal server error',
   })
-  async findAll(@Query('page') page?: number, @Query('limit') limit?: number) {}
+  async register(@Body() registerDto: RegisterDto): Promise<AuthResponseDto> {
+    return this.authService.register(registerDto);
+  }
+
+  @Public()
+  @Post('login')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Login user',
+    description: 'Authenticate user with email and password',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'User successfully logged in',
+    type: AuthResponseDto,
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid credentials',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: 'Invalid email or password',
+        error: 'Bad Request',
+      },
+    },
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Internal server error',
+  })
+  async login(@Body() loginDto: LoginDto): Promise<AuthResponseDto> {
+    return this.authService.login(loginDto);
+  }
 }
