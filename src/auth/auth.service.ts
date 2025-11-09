@@ -14,7 +14,6 @@ import { HashService } from '@/common/services/hash.service';
 import { User, UserRole } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
 import { JwtPayload } from '@/auth/dto/jwt.dto';
-import { use } from 'passport';
 
 @Injectable()
 export class AuthService {

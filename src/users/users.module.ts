@@ -9,7 +9,7 @@ import { UsersRepository } from '@/users/users.repository';
 @Module({
   imports: [PrismaModule, PassportModule],
   controllers: [UsersController],
-  providers: [UsersService],
+  providers: [UsersService, UsersRepository],
   exports: [UsersService, UsersRepository],
 })
 export class UsersModule {}

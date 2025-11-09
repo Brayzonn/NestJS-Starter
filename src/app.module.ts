@@ -9,6 +9,7 @@ import { AppController } from '@/app.controller';
 import { HealthModule } from '@/health/health.module';
 import { RedisModule } from '@/redis/redis.module';
 import { CommonModule } from '@/common/common.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { CommonModule } from '@/common/common.module';
     }),
     RedisModule,
     CommonModule,
+    AuthModule,
     PrismaModule,
     ScheduleModule.forRoot(),
     HealthModule,
